@@ -1443,11 +1443,6 @@ export const MemberView: React.FC<MemberViewProps> = ({ weeklySchedule, currentU
                                       {currentUser.verifiedSpotifyAccounts?.length ? `${currentUser.verifiedSpotifyAccounts.length} Verified Accounts` : (currentUser.spotifyPremiumMode ? 'Verified Active' : 'Not Verified')}
                                   </div>
                               </div>
-                              <div className="flex flex-col items-end gap-2 shrink-0">
-                                  <button onClick={handleConnectSpotify} className="text-[10px] text-white font-bold bg-[#1DB954] hover:bg-[#1ed760] px-3 py-1.5 rounded-full shadow-lg">
-                                      Verify New
-                                  </button>
-                              </div>
                            </div>
                         </div>
                         {currentUser.verifiedSpotifyAccounts && currentUser.verifiedSpotifyAccounts.length > 0 && (
