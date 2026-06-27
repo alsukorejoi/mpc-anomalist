@@ -650,14 +650,16 @@ export const MemberView: React.FC<MemberViewProps> = ({ weeklySchedule, currentU
     }
 
     return (
-      <div className="w-full mb-6 bg-[#2B274B]/40 border border-white/5 rounded-2xl p-4 shadow-lg backdrop-blur-sm">
+      <div className="w-full mb-6 bg-[#363056] rounded-2xl p-4 shadow-lg">
         <div className="flex items-center gap-2 mb-4">
           <CalendarCheck size={18} className="text-purple-400" />
           <h3 className="text-white font-bold text-sm tracking-wide">WEEKLY CHECK-IN (MON-FRI)</h3>
         </div>
         
-        <div className="bg-[#1C1A32]/80 border border-white/5 rounded-2xl p-4 flex justify-between items-center px-4 md:px-8">
-          {weekDays.map((day, idx) => (
+        <div className="bg-[#252238] rounded-2xl p-4 flex justify-between items-center px-4 md:px-8">
+          {weekDays.map((day, idx) => {
+            const isPast = day.date < realToday;
+            return (
             <div key={idx} className="flex flex-col items-center">
               <span className="text-[10px] font-bold text-gray-400 mb-3 tracking-wider">
                 {day.date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}
@@ -667,11 +669,15 @@ export const MemberView: React.FC<MemberViewProps> = ({ weeklySchedule, currentU
                 className={`w-9 h-9 rounded-full flex items-center justify-center border-2 mb-3 transition-colors ${
                   day.hasCheckedIn 
                     ? 'border-emerald-500/50 bg-emerald-500/10' 
+                    : isPast 
+                    ? 'border-red-500/30 bg-red-500/10'
                     : 'border-white/5 bg-transparent'
                 }`}
               >
                 {day.hasCheckedIn ? (
                   <CheckCircle2 size={18} className="text-emerald-500" />
+                ) : isPast ? (
+                  <X size={18} className="text-red-500" />
                 ) : (
                   <Circle size={18} className="text-white/10" />
                 )}
@@ -679,7 +685,7 @@ export const MemberView: React.FC<MemberViewProps> = ({ weeklySchedule, currentU
               
               <span className="text-xs font-bold text-gray-300">{day.date.getDate()}</span>
             </div>
-          ))}
+          )})}
         </div>
       </div>
     );
