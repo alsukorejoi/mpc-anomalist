@@ -23,6 +23,7 @@ export const MemberView: React.FC<MemberViewProps> = ({ weeklySchedule, currentU
   const [accountUsedError, setAccountUsedError] = useState<string | null>(null);
   const [winningAccount, setWinningAccount] = useState<string | string[]>('');
   const [showReward, setShowReward] = useState(false);
+  const [checkedInUsersText, setCheckedInUsersText] = useState<string>('Memuat data member check-in...');
 
   // Profile Modal State
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -67,6 +68,29 @@ export const MemberView: React.FC<MemberViewProps> = ({ weeklySchedule, currentU
     selectedDate.toLocaleDateString('id-ID')
   ];
   const hasCheckedInSelectedDate = currentUser.checkInHistory?.some(d => possibleDates.includes(d)) || false;
+
+  useEffect(() => {
+    const fetchCheckedInUsers = async () => {
+      try {
+        const allUsers = await storageService.getUsers();
+        
+        // Find users who checked in on the selected date
+        const checkedInUsernames = allUsers.filter(u => {
+          const history = u.checkInHistory || [];
+          return possibleDates.some(d => history.includes(d)) || possibleDates.includes(u.lastCheckInDate || '');
+        }).map(u => u.appUsername);
+        
+        if (checkedInUsernames.length > 0) {
+          setCheckedInUsersText(`👥 Member yang sudah check-in hari ini: ${checkedInUsernames.join(' • ')}`);
+        } else {
+          setCheckedInUsersText(`Belum ada member yang check-in hari ini.`);
+        }
+      } catch (err) {
+        console.error("Failed to load checked in users", err);
+      }
+    };
+    fetchCheckedInUsers();
+  }, [selectedDateStr, hasCheckedInSelectedDate, showReward]);
 
   const realToday = new Date();
   realToday.setHours(0,0,0,0);
@@ -664,6 +688,13 @@ export const MemberView: React.FC<MemberViewProps> = ({ weeklySchedule, currentU
   return (
     <div className="w-full max-w-md mx-auto p-4 flex flex-col items-center">
       
+      {/* Running Text */}
+      <div className="w-full mb-4 overflow-hidden rounded-full bg-white/5 border border-white/10 py-1.5 shadow-lg backdrop-blur-sm flex items-center">
+        <div className="whitespace-nowrap animate-[marquee_15s_linear_infinite] flex gap-4 text-xs font-bold text-gray-300">
+          <span className="text-neon-green">✦</span> {checkedInUsersText} <span className="text-neon-green">✦</span>
+        </div>
+      </div>
+
       {/* User Header */}
       <div className="w-full flex justify-between items-center mb-4 bg-white/5 p-4 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors cursor-pointer" onClick={openProfile}>
         <div className="flex items-center gap-4">
