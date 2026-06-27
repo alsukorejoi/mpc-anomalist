@@ -670,7 +670,7 @@ export const MemberView: React.FC<MemberViewProps> = ({ weeklySchedule, currentU
                   day.hasCheckedIn 
                     ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-500' 
                     : isPast 
-                    ? 'border-red-500/30 bg-red-500/20 text-red-400'
+                    ? 'border-red-500/60 bg-red-500/20 text-red-400'
                     : 'border-white/5 bg-transparent text-white/10'
                 }`}
               >
