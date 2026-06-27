@@ -650,13 +650,13 @@ export const MemberView: React.FC<MemberViewProps> = ({ weeklySchedule, currentU
     }
 
     return (
-      <div className="w-full mb-6 bg-[#363056] rounded-2xl p-4 shadow-lg">
+      <div className="w-full mb-6 bg-[#2E2A45] border border-white/5 rounded-2xl p-4 shadow-lg">
         <div className="flex items-center gap-2 mb-4">
           <CalendarCheck size={18} className="text-purple-400" />
           <h3 className="text-white font-bold text-sm tracking-wide">WEEKLY CHECK-IN (MON-FRI)</h3>
         </div>
         
-        <div className="bg-[#252238] rounded-2xl p-4 flex justify-between items-center px-4 md:px-8">
+        <div className="bg-[#201E31] rounded-2xl p-4 flex justify-between items-center px-4 md:px-8">
           {weekDays.map((day, idx) => {
             const isPast = day.date < realToday;
             return (
