@@ -691,11 +691,6 @@ export const MemberView: React.FC<MemberViewProps> = ({ weeklySchedule, currentU
             <div className="font-bold text-white text-lg leading-tight">{currentUser.appUsername}</div>
             <div className="text-[10px] text-neon-green mt-0.5 flex items-center gap-1 opacity-80">
               <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> Online
-              {currentUser.spotifyPremiumMode && (
-                  <span className="ml-2 bg-green-900/50 text-green-400 border border-green-500/30 px-1.5 py-0.5 rounded text-[8px] uppercase tracking-wider font-bold">
-                    Premium
-                  </span>
-              )}
             </div>
           </div>
         </div>
@@ -1429,31 +1424,6 @@ export const MemberView: React.FC<MemberViewProps> = ({ weeklySchedule, currentU
                                </div>
                            )}
                         </div>
-                     </div>
-
-                     <div className="flex flex-col gap-2 p-4 bg-white/5 rounded-2xl border border-white/5">
-                        <div className="flex items-center gap-4">
-                           <div className={`w-10 h-10 rounded-full flex items-center justify-center border shrink-0 ${currentUser.spotifyPremiumMode ? 'bg-green-900/20 text-green-500 border-green-500/20' : 'bg-gray-900/20 text-gray-400 border-gray-500/20'}`}>
-                              <ExternalLink size={20} />
-                           </div>
-                           <div className="overflow-hidden w-full flex justify-between items-center">
-                              <div>
-                                  <div className="text-xs text-gray-500 font-bold uppercase truncate">Spotify Premium</div>
-                                  <div className={`font-bold truncate ${currentUser.spotifyPremiumMode ? 'text-green-400' : 'text-gray-400'}`}>
-                                      {currentUser.verifiedSpotifyAccounts?.length ? `${currentUser.verifiedSpotifyAccounts.length} Verified Accounts` : (currentUser.spotifyPremiumMode ? 'Verified Active' : 'Not Verified')}
-                                  </div>
-                              </div>
-                           </div>
-                        </div>
-                        {currentUser.verifiedSpotifyAccounts && currentUser.verifiedSpotifyAccounts.length > 0 && (
-                           <div className="mt-2 text-xs text-gray-400 flex flex-col gap-1 pl-14">
-                              {currentUser.verifiedSpotifyAccounts.map((acc, idx) => (
-                                <div key={acc.id} className="text-[10px] bg-black/20 p-1.5 rounded-lg border border-white/5">
-                                   <span className="text-green-500 font-bold">{idx + 1}.</span> {acc.id} {acc.email ? `(${acc.email})` : ''} - <span className="text-gray-300 uppercase">{acc.plan}</span>
-                                </div>
-                              ))}
-                           </div>
-                        )}
                      </div>
 
                      <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5">
