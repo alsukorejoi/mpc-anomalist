@@ -407,26 +407,10 @@ export const MemberView: React.FC<MemberViewProps> = ({ weeklySchedule, currentU
     if (!hasCheckedInSelectedDate) {
       await onCheckIn(selectedDateStr, winningAccount); 
       
-      // Calculate how many days THIS week have been checked in (Mon-Sun block)
+      // If the checked-in day is Saturday (6) or Sunday (0), they get an extra bonus point.
       const checkDate = new Date(selectedDate);
       const day = checkDate.getDay();
-      const diff = checkDate.getDate() - day + (day === 0 ? -6 : 1);
-      const monday = new Date(checkDate.setDate(diff));
-      monday.setHours(0,0,0,0);
-      
-      const sunday = new Date(monday);
-      sunday.setDate(monday.getDate() + 6);
-      sunday.setHours(23,59,59,999);
-
-      const history = currentUser.checkInHistory || [];
-      const checkedInDatesThisWeek = new Set(history.filter(d => {
-         const hd = new Date(d);
-         return hd >= monday && hd <= sunday;
-      }));
-      checkedInDatesThisWeek.add(selectedDateStr);
-
-      // If this check-in brings the weekly total past 5 (i.e. the 6th or 7th day checked in)
-      if (checkedInDatesThisWeek.size > 5) {
+      if (day === 0 || day === 6) {
          extraBonusFromWeekly = 1;
       }
     }
