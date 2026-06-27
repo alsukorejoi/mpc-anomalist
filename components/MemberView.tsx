@@ -666,24 +666,24 @@ export const MemberView: React.FC<MemberViewProps> = ({ weeklySchedule, currentU
               </span>
               
               <div 
-                className={`w-8 h-8 rounded-full flex items-center justify-center border mb-3 transition-colors ${
+                className={`w-8 h-8 rounded-full flex items-center justify-center border ${
                   day.hasCheckedIn 
-                    ? 'border-emerald-500/50 bg-emerald-500/10' 
+                    ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-500' 
                     : isPast 
                     ? 'border-red-500/30 bg-red-500/20 text-red-400'
-                    : 'border-white/5 bg-transparent'
+                    : 'border-white/5 bg-transparent text-white/10'
                 }`}
               >
                 {day.hasCheckedIn ? (
-                  <CheckCircle2 size={16} className="text-emerald-500" />
+                  <CheckCircle2 size={16} />
                 ) : isPast ? (
-                  <X size={16} className="text-red-400" />
+                  <X size={16} />
                 ) : (
-                  <Circle size={16} className="text-white/10" />
+                  <Circle size={16} />
                 )}
               </div>
               
-              <span className="text-xs font-bold text-gray-300">{day.date.getDate()}</span>
+              <span className="text-[10px] sm:text-xs font-bold text-gray-400 mt-1">{day.date.getDate()}</span>
             </div>
           )})}
         </div>
