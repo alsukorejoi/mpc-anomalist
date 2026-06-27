@@ -528,15 +528,6 @@ export const MemberView: React.FC<MemberViewProps> = ({ weeklySchedule, currentU
       alert("Username aplikasi tidak boleh kosong!");
       return;
     }
-    
-    // Validasi 1 Last.fm = 1 Spotify Premium
-    const verifiedPremiumCount = currentUser.verifiedSpotifyAccounts?.length || (currentUser.spotifyPremiumMode ? 1 : 0);
-    const validLastFmCount = editLastFmAccounts.filter(a => a.username.trim() && a.apiKey.trim()).length;
-    
-    if (validLastFmCount > verifiedPremiumCount) {
-      alert(`Anda mencoba menyimpan ${validLastFmCount} akun Last.fm, tetapi Anda baru memiliki ${verifiedPremiumCount} akun Spotify Premium terverifikasi.\n\nHarap hubungkan akun Spotify Premium tambahan di menu profil sebelum menambahkan akun Last.fm baru.`);
-      return;
-    }
 
     setIsSavingProfile(true);
     try {
