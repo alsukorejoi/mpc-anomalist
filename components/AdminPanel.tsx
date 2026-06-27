@@ -434,7 +434,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onExit }) => {
           <div className="flex items-center gap-2 mb-1">
             <ShieldCheck size={18} className="text-pink-500" />
             <span className="text-xs md:text-sm text-pink-400/90 font-bold uppercase tracking-[0.2em]">
-               MPC Breakbeat Rising
+               MPC Anomalist
             </span>
           </div>
           <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">
