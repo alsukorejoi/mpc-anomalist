@@ -574,6 +574,8 @@ export const MemberView: React.FC<MemberViewProps> = ({ weeklySchedule, currentU
 
   const progress = calculateProgress();
   const isComplete = progress === 100 && tracks.length > 0;
+  const isWeekendDay = selectedDate.getDay() === 0 || selectedDate.getDay() === 6;
+  const canClaimFreeWeekend = isWeekendDay && !hasCheckedInSelectedDate && tracks.length === 0;
 
   const renderButton = () => {
     if (hasCheckedInSelectedDate && pointsToClaim <= 0) {
@@ -588,14 +590,14 @@ export const MemberView: React.FC<MemberViewProps> = ({ weeklySchedule, currentU
       );
     }
 
-    if (isComplete || pointsToClaim > 0) {
+    if (isComplete || pointsToClaim > 0 || canClaimFreeWeekend) {
       return (
         <button 
           onClick={handleClaim}
           className="w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all duration-500 bg-gradient-to-r from-neon-purple to-pink-600 text-white shadow-[0_0_30px_rgba(176,38,255,0.6)] scale-100 hover:scale-[1.02] cursor-pointer"
         >
           <Trophy size={24} className="text-yellow-300" />
-          {pointsToClaim > 0 && hasCheckedInSelectedDate ? `CLAIM ${pointsToClaim} EXTRA SAVINGS POINTS` : 'CLAIM CHECK-IN'}
+          {pointsToClaim > 0 && hasCheckedInSelectedDate ? `CLAIM ${pointsToClaim} EXTRA SAVINGS POINTS` : (canClaimFreeWeekend ? 'CLAIM WEEKEND SAVINGS' : 'CLAIM CHECK-IN')}
         </button>
       );
     }
