@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, WeeklySchedule } from '../types';
 import { Calendar, Search, CalendarDays } from 'lucide-react';
+import { getPossibleDateStrings } from '../constants';
 
 interface AdminReportViewProps {
   users: User[];
@@ -31,12 +32,7 @@ export const AdminReportView: React.FC<AdminReportViewProps> = ({ users, schedul
     d.setHours(0,0,0,0);
     const dateStr = d.toLocaleDateString();
     const shortDate = d.toLocaleDateString('id-ID', {day: 'numeric', month: 'short'});
-    const possibleDates = [
-        d.toLocaleDateString(),
-        d.toLocaleDateString('en-US'),
-        d.toLocaleDateString('en-GB'),
-        d.toLocaleDateString('id-ID')
-    ];
+    const possibleDates = getPossibleDateStrings(d);
 
     const dayIndex = d.getDay();
     const dayConfig = schedule[dayIndex];
@@ -65,12 +61,7 @@ export const AdminReportView: React.FC<AdminReportViewProps> = ({ users, schedul
         
         const dateStr = d.toLocaleDateString();
         const shortDate = d.toLocaleDateString('id-ID', {day: 'numeric', month: 'short'});
-        const possibleDates = [
-            d.toLocaleDateString(),
-            d.toLocaleDateString('en-US'),
-            d.toLocaleDateString('en-GB'),
-            d.toLocaleDateString('id-ID')
-        ];
+        const possibleDates = getPossibleDateStrings(d);
 
         const dayIndex = d.getDay();
         const dayConfig = schedule[dayIndex];
@@ -93,12 +84,7 @@ export const AdminReportView: React.FC<AdminReportViewProps> = ({ users, schedul
         
         const dateStr = d.toLocaleDateString();
         const shortDate = d.toLocaleDateString('id-ID', {day: 'numeric', month: 'short'});
-        const possibleDates = [
-            d.toLocaleDateString(),
-            d.toLocaleDateString('en-US'),
-            d.toLocaleDateString('en-GB'),
-            d.toLocaleDateString('id-ID')
-        ];
+        const possibleDates = getPossibleDateStrings(d);
 
         const dayIndex = d.getDay();
         const dayConfig = schedule[dayIndex];

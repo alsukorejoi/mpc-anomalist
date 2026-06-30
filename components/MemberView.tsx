@@ -3,7 +3,7 @@ import { CheckCircle2, Circle, RefreshCw, Trophy, AlertCircle, Clock, CalendarCh
 import { TargetTrack, User, WeeklySchedule } from '../types';
 import { fetchRecentTracks } from '../services/lastFmService';
 import { storageService } from '../services/storage';
-import { DEFAULT_SPOTIFY_ID } from '../constants';
+import { DEFAULT_SPOTIFY_ID, getPossibleDateStrings } from '../constants';
 
 interface MemberViewProps {
   weeklySchedule: WeeklySchedule;
@@ -61,12 +61,7 @@ export const MemberView: React.FC<MemberViewProps> = ({ weeklySchedule, currentU
 
   // Calculate Check-in status dynamically
   const selectedDateStr = selectedDate.toLocaleDateString();
-  const possibleDates = [
-    selectedDate.toLocaleDateString(),
-    selectedDate.toLocaleDateString('en-US'),
-    selectedDate.toLocaleDateString('en-GB'),
-    selectedDate.toLocaleDateString('id-ID')
-  ];
+  const possibleDates = getPossibleDateStrings(selectedDate);
   const hasCheckedInSelectedDate = currentUser.checkInHistory?.some(d => possibleDates.includes(d)) || false;
 
   useEffect(() => {
@@ -637,12 +632,7 @@ export const MemberView: React.FC<MemberViewProps> = ({ weeklySchedule, currentU
       const d = new Date(monday);
       d.setDate(monday.getDate() + i);
       
-      const possibleDates = [
-        d.toLocaleDateString(),
-        d.toLocaleDateString('en-US'),
-        d.toLocaleDateString('en-GB'),
-        d.toLocaleDateString('id-ID')
-      ];
+      const possibleDates = getPossibleDateStrings(d);
       const hasCheckedIn = checkInHistory.some((historyD: string) => possibleDates.includes(historyD));
 
       weekDays.push({

@@ -3,7 +3,7 @@ import { Trash2, Save, ArrowLeft, Plus, Settings, Database, Cloud, CloudOff, Dow
 import { TargetTrack, CloudConfig, User, WeeklySchedule, LastFmTrack } from '../types';
 import { storageService } from '../services/storage';
 import { fetchRecentTracks } from '../services/lastFmService';
-import { DEFAULT_CLOUD_CONFIG, DEFAULT_SPOTIFY_ID } from '../constants';
+import { DEFAULT_CLOUD_CONFIG, DEFAULT_SPOTIFY_ID, getPossibleDateStrings } from '../constants';
 import { AdminReportView } from './AdminReportView';
 
 interface AdminPanelProps {
@@ -323,15 +323,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onExit }) => {
   // Helper to check if user checked in today
   const isCheckedInToday = (user: User) => {
     const [yStr, mStr, dStr] = activityDate.split('-');
-    const d = new Date(parseInt(yStr), parseInt(mStr) - 1, parseInt(dStr));
-    d.setHours(0,0,0,0);
+    const dObj = new Date(parseInt(yStr), parseInt(mStr) - 1, parseInt(dStr));
+    dObj.setHours(0,0,0,0);
 
-    const todayStr = d.toLocaleDateString();
-    const todayEnUS = d.toLocaleDateString('en-US');
-    const todayEnGB = d.toLocaleDateString('en-GB'); // DD/MM/YYYY
-    const todayIdID = d.toLocaleDateString('id-ID');
-    
-    const possibleDates = [todayStr, todayEnUS, todayEnGB, todayIdID];
+    const possibleDates = getPossibleDateStrings(dObj);
     
     if (user.checkInHistory) {
       if (possibleDates.some(date => user.checkInHistory!.includes(date))) return true;
@@ -354,12 +349,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onExit }) => {
       const d = new Date(monday);
       d.setDate(monday.getDate() + i);
       
-      const possibleDates = [
-        d.toLocaleDateString(),
-        d.toLocaleDateString('en-US'),
-        d.toLocaleDateString('en-GB'),
-        d.toLocaleDateString('id-ID')
-      ];
+      const possibleDates = getPossibleDateStrings(d);
       const hasCheckedIn = checkInHistory.some((historyD: string) => possibleDates.includes(historyD));
 
       weekDays.push({
@@ -394,12 +384,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onExit }) => {
         continue; // Do not count days before the user was registered
       }
 
-      const possibleDates = [
-        date.toLocaleDateString(),
-        date.toLocaleDateString('en-US'),
-        date.toLocaleDateString('en-GB'),
-        date.toLocaleDateString('id-ID')
-      ];
+      const possibleDates = getPossibleDateStrings(date);
       const dayIndex = date.getDay();
       
       const dayConfig = schedule[dayIndex];

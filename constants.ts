@@ -26,3 +26,25 @@ export const STORAGE_KEY = 'streamguard_playlist';
 export const STORAGE_KEY_USERS = 'streamguard_users_db'; 
 export const STORAGE_KEY_CLOUD = 'streamguard_cloud_config';
 export const STORAGE_KEY_SPOTIFY = 'streamguard_spotify_id';
+
+export const getPossibleDateStrings = (d: Date): string[] => {
+  const yStr = String(d.getFullYear());
+  const mStr = String(d.getMonth() + 1);
+  const dStr = String(d.getDate());
+  
+  const mPad = mStr.padStart(2, '0');
+  const dPad = dStr.padStart(2, '0');
+
+  return [
+    d.toLocaleDateString(),
+    d.toLocaleDateString('en-US'),
+    d.toLocaleDateString('en-GB'),
+    d.toLocaleDateString('id-ID'),
+    `${mStr}/${dStr}/${yStr}`,
+    `${mPad}/${dPad}/${yStr}`,
+    `${dStr}/${mStr}/${yStr}`,
+    `${dPad}/${mPad}/${yStr}`,
+    `${yStr}-${mPad}-${dPad}`,
+    `${yStr}/${mPad}/${dPad}`
+  ];
+};
