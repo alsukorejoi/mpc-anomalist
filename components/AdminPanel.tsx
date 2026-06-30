@@ -272,6 +272,59 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onExit }) => {
       }
   };
 
+  const handleNormalizeDates = async () => {
+      if (!window.confirm("Yakin ingin menormalisasi semua format tanggal ke YYYY-MM-DD? Ini akan menyamakan semua format absen agar tidak ada yang hilang.")) return;
+      try {
+          setIsSavingUser(true);
+          setSettingsMsg('Normalizing database dates...');
+          
+          let count = 0;
+          const data = await storageService.getUsers();
+          
+          for (let i = 0; i < data.length; i++) {
+              const u = data[i];
+              let modified = false;
+              let newHistory = u.checkInHistory || [];
+              
+              const toISO = (dateStr: string) => {
+                  try {
+                      if (dateStr.includes('/') || dateStr.includes('-')) {
+                           const p = dateStr.split(/[-/]/);
+                           if (p.length === 3) {
+                               if (p[0].length === 4) return `${p[0]}-${p[1].padStart(2, '0')}-${p[2].padStart(2, '0')}`;
+                               if (p[2].length === 4) {
+                                   let d = parseInt(p[0]); let m = parseInt(p[1]); let y = parseInt(p[2]);
+                                   if (m > 12) { d = parseInt(p[1]); m = parseInt(p[0]); }
+                                   const dObj = new Date(y, m - 1, d);
+                                   if (!isNaN(dObj.getTime())) return dObj.toISOString().split('T')[0];
+                               }
+                           }
+                      }
+                      const d = new Date(dateStr);
+                      if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];
+                  } catch (e) {}
+                  return dateStr;
+              };
+
+              const isoHistory = newHistory.map(d => toISO(d));
+              const finalHistory = Array.from(new Set(isoHistory));
+              
+              if (JSON.stringify(newHistory) !== JSON.stringify(finalHistory)) {
+                  await storageService.updateUserProfile(u.id, { checkInHistory: finalHistory });
+                  modified = true;
+                  count++;
+              }
+          }
+          
+          await loadData();
+          setSettingsMsg(`SUCCESS: Normalized dates for ${count} users.`);
+      } catch (e: any) {
+          setSettingsMsg(`ERROR: ${e.message}`);
+      } finally {
+          setIsSavingUser(false);
+      }
+  };
+
   const handleExportData = () => {
     try {
       const data = storageService.exportData();
@@ -895,6 +948,24 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onExit }) => {
                         <strong>Firebase Active:</strong> Application is fully connected and auto-syncing with Cloud Firestore. Data limits are managed by Firebase.
                     </div>
                 </div>
+            </div>
+
+            {/* Normalisasi Data Section */}
+            <div className="glass p-6 rounded-2xl border border-emerald-500/20">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-emerald-400">
+                    <Database /> Normalisasi Data (Opsi 1)
+                </h3>
+                <p className="text-sm text-gray-400 mb-4">
+                    Gunakan fitur ini jika ada data absen yang hilang. Ini akan mengubah semua format tanggal yang berantakan menjadi format seragam agar bisa terbaca sistem.
+                </p>
+                <button 
+                    onClick={handleNormalizeDates}
+                    disabled={isSavingUser}
+                    className="w-full bg-emerald-600/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 rounded-xl px-6 py-3 font-bold transition-all flex items-center justify-center gap-2"
+                >
+                    {isSavingUser ? <Loader2 className="animate-spin" /> : <RefreshCw size={18} />}
+                    Jalankan Normalisasi Tanggal
+                </button>
             </div>
 
             {/* Backup Section */}
