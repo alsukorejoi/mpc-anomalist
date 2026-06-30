@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Trash2, Save, ArrowLeft, Plus, Settings, Database, Cloud, CloudOff, Download, Upload, ListMusic, Loader2, RefreshCw, Users, CheckCircle2, Clock, Music, Search, Filter, XCircle, BarChart3, Calendar, Copy, Key, Lock, ShieldCheck, Eye, X, User as UserIcon, Link as LinkIcon, Headphones, CalendarCheck, MessageCircle, ExternalLink, Circle } from 'lucide-react';
+import { Trash2, Save, ArrowLeft, Plus, Settings, Database, Cloud, CloudOff, Download, Upload, ListMusic, Loader2, RefreshCw, Users, CheckCircle2, Clock, Music, Search, Filter, XCircle, BarChart3, Calendar, Copy, Key, Lock, ShieldCheck, Eye, X, User as UserIcon, Link as LinkIcon, Headphones, CalendarCheck, MessageCircle, ExternalLink, Circle, Edit2 } from 'lucide-react';
 import { TargetTrack, CloudConfig, User, WeeklySchedule, LastFmTrack } from '../types';
 import { storageService } from '../services/storage';
 import { fetchRecentTracks } from '../services/lastFmService';
@@ -33,6 +33,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onExit }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'checked' | 'missing'>('all');
   const [viewingUser, setViewingUser] = useState<User | null>(null); // State for modal
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [isSavingUser, setIsSavingUser] = useState(false);
   const [userHistory, setUserHistory] = useState<LastFmTrack[] | null>(null);
   const [isFetchingHistory, setIsFetchingHistory] = useState(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
@@ -151,6 +153,22 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onExit }) => {
         console.error("Failed to update password", e);
         alert("Failed to update password.");
       }
+    }
+  };
+
+  const handleEditUserSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser) return;
+    setIsSavingUser(true);
+    try {
+      await storageService.updateUserProfile(editingUser.id, editingUser);
+      alert('User updated successfully!');
+      setEditingUser(null);
+      fetchUsers();
+    } catch (err: any) {
+      alert(`Error updating user: ${err.message}`);
+    } finally {
+      setIsSavingUser(false);
     }
   };
 
@@ -780,6 +798,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onExit }) => {
                                                 <td className="py-4 align-middle pr-2">
                                                     <div className="flex justify-end gap-2">
                                                         <button 
+                                                            onClick={() => setEditingUser(user)}
+                                                            className="p-2 bg-white/5 hover:bg-emerald-600/20 hover:text-emerald-400 rounded-lg transition-colors border border-white/5"
+                                                            title="Edit User"
+                                                        >
+                                                            <Edit2 size={16} />
+                                                        </button>
+                                                        <button 
                                                             onClick={() => setViewingUser(user)}
                                                             className="p-2 bg-white/5 hover:bg-blue-600/20 hover:text-blue-400 rounded-lg transition-colors border border-white/5"
                                                             title="View Full Profile"
@@ -1166,6 +1191,84 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onExit }) => {
                             Delete User
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+      )}
+
+      {editingUser && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-[#1a163e] w-full max-w-lg rounded-2xl border border-emerald-500/30 shadow-2xl flex flex-col max-h-[90vh]">
+                <div className="p-6 border-b border-white/10 flex justify-between items-center bg-emerald-900/20">
+                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                        <Edit2 className="text-emerald-400" />
+                        Edit User
+                    </h3>
+                    <button 
+                        onClick={() => setEditingUser(null)}
+                        className="text-gray-400 hover:text-white transition-colors p-1"
+                    >
+                        <X size={24} />
+                    </button>
+                </div>
+                <div className="p-6 overflow-y-auto custom-scrollbar">
+                    <form onSubmit={handleEditUserSubmit} className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-bold text-gray-300 mb-1">App Username</label>
+                            <input 
+                                type="text"
+                                value={editingUser.appUsername}
+                                onChange={(e) => setEditingUser({...editingUser, appUsername: e.target.value})}
+                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 focus:outline-none focus:border-emerald-500 text-white"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-gray-300 mb-1">Last.fm Username</label>
+                            <input 
+                                type="text"
+                                value={editingUser.lastFmUsername}
+                                onChange={(e) => setEditingUser({...editingUser, lastFmUsername: e.target.value})}
+                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 focus:outline-none focus:border-emerald-500 text-white"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-gray-300 mb-1">Last.fm API Key</label>
+                            <input 
+                                type="text"
+                                value={editingUser.lastFmApiKey}
+                                onChange={(e) => setEditingUser({...editingUser, lastFmApiKey: e.target.value})}
+                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 focus:outline-none focus:border-emerald-500 text-white"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-gray-300 mb-1">Extra Points Balance</label>
+                            <input 
+                                type="number"
+                                value={editingUser.extraPointsBalance || 0}
+                                onChange={(e) => setEditingUser({...editingUser, extraPointsBalance: parseInt(e.target.value)})}
+                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 focus:outline-none focus:border-emerald-500 text-white"
+                            />
+                        </div>
+                        <div className="pt-4 flex justify-end gap-3">
+                            <button 
+                                type="button"
+                                onClick={() => setEditingUser(null)}
+                                className="px-6 py-2 rounded-xl font-bold text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                type="submit"
+                                disabled={isSavingUser}
+                                className="px-6 py-2 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-500 transition-colors flex items-center gap-2 disabled:opacity-50"
+                            >
+                                {isSavingUser ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
