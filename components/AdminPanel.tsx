@@ -272,6 +272,50 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onExit }) => {
       }
   };
 
+  const handleRestoreDates = async () => {
+      if (!window.confirm("Yakin ingin memulihkan data (menambah +1 hari pada semua format YYYY-MM-DD)? Gunakan ini HANYA jika tanggal mundur 1 hari setelah klik normalisasi.")) return;
+      try {
+          setIsSavingUser(true);
+          setSettingsMsg('Memulihkan tanggal...');
+          
+          let count = 0;
+          const data = await storageService.getUsers();
+          
+          for (let i = 0; i < data.length; i++) {
+              const u = data[i];
+              let newHistory = u.checkInHistory || [];
+              
+              const shiftDate = (dateStr: string) => {
+                  if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                      const [y, m, d] = dateStr.split('-');
+                      const dObj = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+                      dObj.setDate(dObj.getDate() + 1);
+                      
+                      const ny = dObj.getFullYear();
+                      const nm = String(dObj.getMonth() + 1).padStart(2, '0');
+                      const nd = String(dObj.getDate()).padStart(2, '0');
+                      return `${ny}-${nm}-${nd}`;
+                  }
+                  return dateStr;
+              };
+
+              const shiftedHistory = newHistory.map(d => shiftDate(d));
+              
+              if (JSON.stringify(newHistory) !== JSON.stringify(shiftedHistory)) {
+                  await storageService.updateUserProfile(u.id, { checkInHistory: shiftedHistory });
+                  count++;
+              }
+          }
+          
+          await loadData();
+          setSettingsMsg(`SUCCESS: Berhasil memulihkan tanggal untuk ${count} users.`);
+      } catch (e: any) {
+          setSettingsMsg(`ERROR: ${e.message}`);
+      } finally {
+          setIsSavingUser(false);
+      }
+  };
+
   const handleNormalizeDates = async () => {
       if (!window.confirm("Yakin ingin menormalisasi semua format tanggal ke YYYY-MM-DD? Ini akan menyamakan semua format absen agar tidak ada yang hilang.")) return;
       try {
@@ -296,12 +340,22 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onExit }) => {
                                    let d = parseInt(p[0]); let m = parseInt(p[1]); let y = parseInt(p[2]);
                                    if (m > 12) { d = parseInt(p[1]); m = parseInt(p[0]); }
                                    const dObj = new Date(y, m - 1, d);
-                                   if (!isNaN(dObj.getTime())) return dObj.toISOString().split('T')[0];
+                                   if (!isNaN(dObj.getTime())) {
+                                       const ry = dObj.getFullYear();
+                                       const rm = String(dObj.getMonth() + 1).padStart(2, '0');
+                                       const rd = String(dObj.getDate()).padStart(2, '0');
+                                       return `${ry}-${rm}-${rd}`;
+                                   }
                                }
                            }
                       }
-                      const d = new Date(dateStr);
-                      if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];
+                      const dObj = new Date(dateStr);
+                      if (!isNaN(dObj.getTime())) {
+                          const ry = dObj.getFullYear();
+                          const rm = String(dObj.getMonth() + 1).padStart(2, '0');
+                          const rd = String(dObj.getDate()).padStart(2, '0');
+                          return `${ry}-${rm}-${rd}`;
+                      }
                   } catch (e) {}
                   return dateStr;
               };
@@ -951,11 +1005,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onExit }) => {
             </div>
 
             {/* Normalisasi Data Section */}
-            <div className="glass p-6 rounded-2xl border border-emerald-500/20">
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-emerald-400">
+            <div className="glass p-6 rounded-2xl border border-emerald-500/20 space-y-4">
+                <h3 className="text-xl font-bold flex items-center gap-2 text-emerald-400">
                     <Database /> Normalisasi Data (Opsi 1)
                 </h3>
-                <p className="text-sm text-gray-400 mb-4">
+                <p className="text-sm text-gray-400">
                     Gunakan fitur ini jika ada data absen yang hilang. Ini akan mengubah semua format tanggal yang berantakan menjadi format seragam agar bisa terbaca sistem.
                 </p>
                 <button 
@@ -966,6 +1020,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onExit }) => {
                     {isSavingUser ? <Loader2 className="animate-spin" /> : <RefreshCw size={18} />}
                     Jalankan Normalisasi Tanggal
                 </button>
+                
+                <div className="pt-4 border-t border-emerald-500/20">
+                    <p className="text-sm text-orange-400 mb-4">
+                        <strong>Perbaikan:</strong> Jika sebelumnya tanggal absen mundur 1 hari setelah normalisasi (misal tanggal 30 menjadi tanggal 29), klik tombol di bawah ini untuk mengembalikannya (+1 Hari).
+                    </p>
+                    <button 
+                        onClick={handleRestoreDates}
+                        disabled={isSavingUser}
+                        className="w-full bg-orange-600/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/30 rounded-xl px-6 py-3 font-bold transition-all flex items-center justify-center gap-2"
+                    >
+                        {isSavingUser ? <Loader2 className="animate-spin" /> : <RefreshCw size={18} />}
+                        Pulihkan Tanggal (+1 Hari)
+                    </button>
+                </div>
             </div>
 
             {/* Backup Section */}
