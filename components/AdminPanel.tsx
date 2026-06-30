@@ -32,6 +32,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onExit }) => {
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'checked' | 'missing'>('all');
+  const [activityDate, setActivityDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [viewingUser, setViewingUser] = useState<User | null>(null); // State for modal
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [isSavingUser, setIsSavingUser] = useState(false);
@@ -321,7 +322,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onExit }) => {
 
   // Helper to check if user checked in today
   const isCheckedInToday = (user: User) => {
-    const d = new Date();
+    const [yStr, mStr, dStr] = activityDate.split('-');
+    const d = new Date(parseInt(yStr), parseInt(mStr) - 1, parseInt(dStr));
+    d.setHours(0,0,0,0);
+
     const todayStr = d.toLocaleDateString();
     const todayEnUS = d.toLocaleDateString('en-US');
     const todayEnGB = d.toLocaleDateString('en-GB'); // DD/MM/YYYY
@@ -443,7 +447,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onExit }) => {
   stats.missing = stats.total - stats.checkedIn;
   const completionRate = stats.total > 0 ? Math.round((stats.checkedIn / stats.total) * 100) : 0;
   const filteredUsers = getFilteredUsers();
-  const todayDateDisplay = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+  const getDisplayDate = () => {
+    const [yStr, mStr, dStr] = activityDate.split('-');
+    const d = new Date(parseInt(yStr), parseInt(mStr) - 1, parseInt(dStr));
+    return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  };
+  const todayDateDisplay = getDisplayDate();
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4 md:p-6 animate-fade-in relative">
@@ -640,6 +650,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onExit }) => {
 
       {activeTab === 'users' && (
         <div className="space-y-6 animate-fade-in">
+           {/* Date Picker */}
+           <div className="flex items-center gap-3 bg-black/20 p-4 rounded-xl border border-white/5">
+               <Calendar className="text-emerald-400" size={20} />
+               <span className="text-white font-bold text-sm md:text-base">Target Date:</span>
+               <input 
+                   type="date" 
+                   value={activityDate}
+                   onChange={(e) => setActivityDate(e.target.value)}
+                   className="bg-black/40 border border-white/10 rounded-lg px-3 py-1.5 focus:outline-none focus:border-emerald-500 text-white font-mono text-sm"
+               />
+           </div>
+
            {/* Summary Stats Cards */}
            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                <div className="glass p-4 rounded-xl flex flex-col items-center justify-center border border-white/10">
@@ -647,11 +669,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onExit }) => {
                    <div className="text-2xl font-bold text-white">{stats.total}</div>
                </div>
                <div className="glass p-4 rounded-xl flex flex-col items-center justify-center border border-green-500/20 bg-green-900/10">
-                   <div className="text-green-400 text-xs font-bold uppercase mb-1">Checked In (Today)</div>
+                   <div className="text-green-400 text-xs font-bold uppercase mb-1 flex items-center gap-1">Checked In</div>
                    <div className="text-2xl font-bold text-green-400">{stats.checkedIn}</div>
                </div>
                <div className="glass p-4 rounded-xl flex flex-col items-center justify-center border border-red-500/20 bg-red-900/10">
-                   <div className="text-red-400 text-xs font-bold uppercase mb-1">Missing (Today)</div>
+                   <div className="text-red-400 text-xs font-bold uppercase mb-1">Missing</div>
                    <div className="text-2xl font-bold text-red-400">{stats.missing}</div>
                </div>
                <div className="glass p-4 rounded-xl flex flex-col items-center justify-center border border-blue-500/20">
