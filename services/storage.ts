@@ -82,13 +82,6 @@ export const storageService = {
       dailyUsedLastFmAccounts
     };
 
-    // Auto-seed Firebase so we don't lose the local fallback data on next fetches from other devices
-    try {
-      if (typeof db !== "undefined" && users.length > 0) {
-        setDoc(doc(db, 'appData', 'main'), localData).catch(() => {});
-      }
-    } catch(e) {}
-
     return localData;
   },
 
